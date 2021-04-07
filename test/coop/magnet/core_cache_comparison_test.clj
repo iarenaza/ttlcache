@@ -1,11 +1,12 @@
 ;; Copyright Rob Day, 2014
+;; Copyright Magnet, S. Coop 2021
 ;; Released under the EPL
 
 (ns coop.magnet.core-cache-comparison-test
-  (:require [clojure.test :refer :all]
+  (:require [clojure.core.cache :as cache]
+            [clojure.test :refer :all]
             [coop.magnet.ttlcache :as mycache]
-            [clojure.core.cache :as cache]
-            [criterium.core :refer [bench quick-bench quick-benchmark benchmark]]))
+            [criterium.core :refer [quick-benchmark]]))
 
 (def #^{:macro true} benchmark-fn #'quick-benchmark)
 
@@ -29,8 +30,7 @@
         _ (Thread/sleep 18000)
         bigger-cache (reduce #(cache/miss %1 %2 (* 23 %2)) my-cache (range m n))
         _ (Thread/sleep 3000)]
-    bigger-cache
-    ))
+    bigger-cache))
 
 (defn complexity-compare [testfn]
   (let [result1k (first (:mean (benchmark-fn (testfn c1k) {})))
@@ -90,9 +90,9 @@
         (println "With 4950 out of 5,000 cache items being expired, adding an item to my TTLCache is " (/ 1 factor) " times SLOWER than the core.cache one")
         (is (> factor 0.01))))
     (testing "Lookup performance"
-    (let [factor (implementation-speed-compare #(cache/lookup % 1))]
-      (println "With a 5,000-entry cache, looking an item up in my TTLCache is " factor " times faster than the core.cache one")
-      (is (> factor 0.95))))
+      (let [factor (implementation-speed-compare #(cache/lookup % 1))]
+        (println "With a 5,000-entry cache, looking an item up in my TTLCache is " factor " times faster than the core.cache one")
+        (is (> factor 0.95))))
 
     (testing "Manual eviction performance"
       (let [factor (implementation-speed-compare #(cache/evict % 1))]
@@ -111,7 +111,6 @@
       (println "My TTLCache: adding an item to a cache with 5,000 entries takes " factor "longer than one with 1,000 entries")
       (is (< factor 1.3)))))
 
-
 ;; Cost of retrieval
 
 (deftest retrieval-complexity
@@ -123,9 +122,8 @@
       (println "My TTLCache: finding an item in a cache with 5,000 entries takes " factor "longer than one with 1,000 entries")
       (is (< factor 1.3)))))
 
-
-
 ;; Cost of eviction
+
 (deftest eviction-complexity
   (testing "Both implementations have O(log n) or better manual eviction"
     (let [factor (complexity-compare #(cache/evict % 1))]
@@ -135,9 +133,3 @@
     (let [factor (my-complexity-compare #(cache/evict % 1))]
       (println "My TTLCache: removing an item from a cache with 5,000 entries takes " factor "longer than one with 1,000 entries")
       (is (< factor 1.3)))))
-
-
-
-
-
-
