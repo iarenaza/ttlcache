@@ -1,4 +1,4 @@
-(defproject coop.magnet/ttlcache "0.2.0-SNAPSHOT"
+(defproject coop.magnet/ttlcache "0.2.0"
   :description "A variation of core.cache's TTLCache specialised for some different cases. Forked from https://github.com/rkday/ttlcache"
   :url "https://github.com/magnetcoop/ttlcache"
   :license {:name "Eclipse Public License"
