@@ -1,0 +1,13 @@
+/target
+/checkouts
+pom.xml
+pom.xml.asc
+*.jar
+*.class
+/.lein-*
+/.nrepl-port
+/.dir-locals.el
+/profiles.clj
+.idea/
+*.iml
+.eastwood
