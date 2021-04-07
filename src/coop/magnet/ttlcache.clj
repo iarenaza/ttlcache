@@ -11,24 +11,16 @@
 (defn- setval [newkey newval ttl [info ttls :as cache]]
   [(assoc info newkey newval) (assoc ttls newkey (expires ttl))])
 
-(defn- expire*
-  ([info ttls now]
-     (if (empty? ttls)
-       [(persistent! info) ttls]
-       (let [[key expires] (peek ttls)]
-         (if (> now expires)
-           (do
-             (comment println "Expiring " key)
-             (recur (dissoc! info key) (pop ttls) now))
-           [(persistent! info) ttls]
-           )))))
-
-
 (defn- expire
   ([cache]
-     (expire cache (System/currentTimeMillis)))
-  ([[info ttls :as cache] now]
-     (expire* (transient info) ttls now)))
+   (expire cache (System/currentTimeMillis)))
+  ([[info ttls] now]
+   (if (empty? ttls)
+     [(persistent! info) ttls]
+     (let [[key expires] (peek ttls)]
+       (if (> now expires)
+         (recur [(dissoc info key) (pop ttls)] now)
+         [info ttls])))))
 
 (defcache PerItemTTLCache [cache expiry-heap get-ttl]
   CacheProtocol
