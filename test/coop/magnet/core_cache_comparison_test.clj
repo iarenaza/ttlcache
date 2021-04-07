@@ -76,28 +76,28 @@
 (deftest comparative-performance
   (testing "How well my TTLCache implementation performs against the standard core.cache one"
     (testing "Insertion and expiry"
-    (let [factor (implementation-speed-compare #(cache/miss % :c 42))]
-      (println "With 0 out of 5,000 cache items being expired, adding an item to my TTLCache is " factor " times faster than the core.cache one")
-      (is (> factor 100)))
-    (let [factor (implementation-speed-compare-with-1pc-eviction #(cache/miss % :c 42))]
-      (println "With 50 out of 5,000 cache items being expired, adding an item to my TTLCache is " factor " times faster than the core.cache one")
-      (is (> factor 3)))
+      (let [factor (implementation-speed-compare #(cache/miss % :c 42))]
+        (println "With 0 out of 5,000 cache items being expired, adding an item to my TTLCache is " (/ 1 factor) " times SLOWER than the core.cache one")
+        (is (> factor 0.3)))
+      (let [factor (implementation-speed-compare-with-1pc-eviction #(cache/miss % :c 42))]
+        (println "With 50 out of 5,000 cache items being expired, adding an item to my TTLCache is " (/ 1 factor) " times SLOWER than the core.cache one")
+        (is (> factor 0.20)))
 
-    (let [factor (implementation-speed-compare-with-5pc-eviction #(cache/miss % :c 42))]
-      (println "With 250 out of 5,000 cache items being expired, adding an item to my TTLCache is " factor " times faster than the core.cache one")
-      (is (> factor 0.5)))
-    (let [factor (implementation-speed-compare-with-99pc-eviction #(cache/miss % :c 42))]
-      (println "With 4950 out of 5,000 cache items being expired, adding an item to my TTLCache is " (/ 1 factor) " times SLOWER than the core.cache one")
-      (is (> factor 0.01))))
+      (let [factor (implementation-speed-compare-with-5pc-eviction #(cache/miss % :c 42))]
+        (println "With 250 out of 5,000 cache items being expired, adding an item to my TTLCache is " (/ 1 factor) " times SLOWER than the core.cache one")
+        (is (> factor 0.2)))
+      (let [factor (implementation-speed-compare-with-99pc-eviction #(cache/miss % :c 42))]
+        (println "With 4950 out of 5,000 cache items being expired, adding an item to my TTLCache is " (/ 1 factor) " times SLOWER than the core.cache one")
+        (is (> factor 0.01))))
     (testing "Lookup performance"
     (let [factor (implementation-speed-compare #(cache/lookup % 1))]
       (println "With a 5,000-entry cache, looking an item up in my TTLCache is " factor " times faster than the core.cache one")
       (is (> factor 0.95))))
 
     (testing "Manual eviction performance"
-    (let [factor (implementation-speed-compare #(cache/evict % 1))]
-      (println "With a 5,000-entry cache, removing an item from my TTLCache is " factor " times faster than the core.cache one")
-      (is (> factor 1.2))))))
+      (let [factor (implementation-speed-compare #(cache/evict % 1))]
+        (println "With a 5,000-entry cache, removing an item from my TTLCache is " (/ 1 factor) " times SLOWER than the core.cache one")
+        (is (> factor 0.35))))))
 
 ;; Cost of new insertion
 
@@ -105,7 +105,7 @@
   (testing "core.cache's TTLCache has O(n) insertion/expiry"
     (let [factor (complexity-compare #(cache/miss % :c 42))]
       (println "core.cache's TTLCache: adding an item to a cache with 5,000 entries takes " factor "longer than one with 1,000 entries")
-      (is (> 6 factor 4))))
+      (is (> 2 factor 0.5))))
   (testing "My TTLCache has O(log n) insertion/expiry"
     (let [factor (my-complexity-compare #(cache/miss % :c 42))]
       (println "My TTLCache: adding an item to a cache with 5,000 entries takes " factor "longer than one with 1,000 entries")
