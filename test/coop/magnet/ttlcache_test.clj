@@ -9,82 +9,81 @@
 ;; You must not remove this notice, or any other, from this software.
 
 ;; Other parts are Copyright 2014 Rob Day, and also released under the EPL.
-
+;; Other parts are Copyright 2021 Magnet, S. Coop, and also released under the EPL.
 
 (ns coop.magnet.ttlcache-test
-  (:require [clojure.test :refer :all]
-            [coop.magnet.ttlcache :refer [per-item-ttl-cache-factory ttl-cache-factory]]
-            [clojure.data.priority-map :refer [priority-map]])
+  (:require [clojure.data.priority-map :refer [priority-map]]
+            [clojure.test :refer :all]
+            [coop.magnet.ttlcache :refer [per-item-ttl-cache-factory ttl-cache-factory]])
   (:import coop.magnet.ttlcache.PerItemTTLCache))
 
 (defn do-dot-lookup-tests [c]
   (are [expect actual] (= expect actual)
-       1 (.lookup c :a)
-       2 (.lookup c :b)
-       42 (.lookup c :c 42)
-       nil (.lookup c :c)))
+    1 (.lookup c :a)
+    2 (.lookup c :b)
+    42 (.lookup c :c 42)
+    nil (.lookup c :c)))
 
 (defn do-ilookup-tests [c]
   (are [expect actual] (= expect actual)
-       1 (:a c)
-       2 (:b c)
-       42 (:X c 42)
-       nil (:X c)))
+    1 (:a c)
+    2 (:b c)
+    42 (:X c 42)
+    nil (:X c)))
 
 (defn do-assoc [c]
   (are [expect actual] (= expect actual)
-       1 (:a (assoc c :a 1))
-       nil (:a (assoc c :b 1))))
+    1 (:a (assoc c :a 1))
+    nil (:a (assoc c :b 1))))
 
 (defn do-dissoc [c]
   (are [expect actual] (= expect actual)
-       2 (:b (dissoc c :a))
-       nil (:a (dissoc c :a))
-       nil (:b (-> c (dissoc :a) (dissoc :b)))
-       0 (count (-> c (dissoc :a) (dissoc :b)))))
+    2 (:b (dissoc c :a))
+    nil (:a (dissoc c :a))
+    nil (:b (-> c (dissoc :a) (dissoc :b)))
+    0 (count (-> c (dissoc :a) (dissoc :b)))))
 
 (defn do-getting [c]
   (are [actual expect] (= expect actual)
-       (get c :a) 1
-       (get c :e) nil
-       (get c :e 0) 0
-       (get c :b 0) 2
-       (get c :f 0) nil
+    (get c :a) 1
+    (get c :e) nil
+    (get c :e 0) 0
+    (get c :b 0) 2
+    (get c :f 0) nil
 
-       (get-in c [:c :e]) 4
-       (get-in c '(:c :e)) 4
-       (get-in c [:c :x]) nil
-       (get-in c [:f]) nil
-       (get-in c [:g]) false
-       (get-in c [:h]) nil
-       (get-in c []) c
-       (get-in c nil) c
+    (get-in c [:c :e]) 4
+    (get-in c '(:c :e)) 4
+    (get-in c [:c :x]) nil
+    (get-in c [:f]) nil
+    (get-in c [:g]) false
+    (get-in c [:h]) nil
+    (get-in c []) c
+    (get-in c nil) c
 
-       (get-in c [:c :e] 0) 4
-       (get-in c '(:c :e) 0) 4
-       (get-in c [:c :x] 0) 0
-       (get-in c [:b] 0) 2
-       (get-in c [:f] 0) nil
-       (get-in c [:g] 0) false
-       (get-in c [:h] 0) 0
-       (get-in c [:x :y] {:y 1}) {:y 1}
-       (get-in c [] 0) c
-       (get-in c nil 0) c))
+    (get-in c [:c :e] 0) 4
+    (get-in c '(:c :e) 0) 4
+    (get-in c [:c :x] 0) 0
+    (get-in c [:b] 0) 2
+    (get-in c [:f] 0) nil
+    (get-in c [:g] 0) false
+    (get-in c [:h] 0) 0
+    (get-in c [:x :y] {:y 1}) {:y 1}
+    (get-in c [] 0) c
+    (get-in c nil 0) c))
 
 (defn do-finding [c]
   (are [expect actual] (= expect actual)
-       (find c :a) [:a 1]
-       (find c :b) [:b 2]
-       (find c :c) nil
-       (find c nil) nil))
+    (find c :a) [:a 1]
+    (find c :b) [:b 2]
+    (find c :c) nil
+    (find c nil) nil))
 
 (defn do-contains [c]
   (are [expect actual] (= expect actual)
-       (contains? c :a) true
-       (contains? c :b) true
-       (contains? c :c) false
-       (contains? c nil) false))
-
+    (contains? c :a) true
+    (contains? c :b) true
+    (contains? c :c) false
+    (contains? c nil) false))
 
 (def big-map {:a 1, :b 2, :c {:d 3, :e 4}, :f nil, :g false, nil {:h 5}})
 (def small-map {:a 1 :b 2})
@@ -113,25 +112,25 @@
   (testing "TTL-ness with empty cache"
     (let [C (ttl-cache-factory {} :ttl 500)]
       (are [x y] (= x y)
-           {:a 1, :b 2} (-> C (assoc :a 1) (assoc :b 2) .cache)
-           {:c 3} (-> C (assoc :a 1) (assoc :b 2) (sleepy 700) (assoc :c 3) .cache))))
+        {:a 1, :b 2} (-> C (assoc :a 1) (assoc :b 2) .cache)
+        {:c 3} (-> C (assoc :a 1) (assoc :b 2) (sleepy 700) (assoc :c 3) .cache))))
   (testing "TTL cache does not return a value that has expired."
     (let [C (ttl-cache-factory {} :ttl 500)]
       (is (nil? (-> C (assoc :a 1) (sleepy 700) (. lookup :a)))))))
 
 (deftest test-per-item-ttl-cache
   (testing "TTL-ness with empty cache"
-    (let [C (per-item-ttl-cache-factory {} :ttl-getter (fn [key value] (:ttl value)))]
+    (let [C (per-item-ttl-cache-factory {} :ttl-getter (fn [_ value] (:ttl value)))]
       (are [x y] (= x y)
-           {:a {:val 1, :ttl 500} :b {:val 2, :ttl 500}} (-> C (assoc :a {:val 1, :ttl 500}) (assoc :b {:val 2, :ttl 500}) .cache)
-           {:b {:val 2, :ttl 1000}, :c {:val 3, :ttl 100}} (-> C
-                                                               (assoc :a {:val 1, :ttl 500})
-                                                               (assoc :b {:val 2, :ttl 1000})
-                                                               (sleepy 700)
-                                                               (assoc :c {:val 3, :ttl 100})
-                                                               .cache))))
+        {:a {:val 1, :ttl 500} :b {:val 2, :ttl 500}} (-> C (assoc :a {:val 1, :ttl 500}) (assoc :b {:val 2, :ttl 500}) .cache)
+        {:b {:val 2, :ttl 1000}, :c {:val 3, :ttl 100}} (-> C
+                                                            (assoc :a {:val 1, :ttl 500})
+                                                            (assoc :b {:val 2, :ttl 1000})
+                                                            (sleepy 700)
+                                                            (assoc :c {:val 3, :ttl 100})
+                                                            .cache))))
   (testing "TTL cache does not return a value that has expired."
-    (let [C (per-item-ttl-cache-factory {} :ttl-getter (fn [key value] (:ttl value)))]
+    (let [C (per-item-ttl-cache-factory {} :ttl-getter (fn [_ value] (:ttl value)))]
       (is (nil? (-> C
                     (assoc :a {:val 1 :ttl 500})
                     (sleepy 700)
