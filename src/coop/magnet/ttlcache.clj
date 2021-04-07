@@ -2,7 +2,7 @@
 ;; Released under the EPL
 
 
-(ns uk.me.rkd.ttlcache
+(ns coop.magnet.ttlcache
   (:require [clojure.data.priority-map :refer [priority-map]]
             [clojure.core.cache :refer [CacheProtocol defcache]]))
 

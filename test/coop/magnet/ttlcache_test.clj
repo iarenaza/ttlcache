@@ -11,11 +11,11 @@
 ;; Other parts are Copyright 2014 Rob Day, and also released under the EPL.
 
 
-(ns uk.me.rkd.ttlcache-test
+(ns coop.magnet.ttlcache-test
   (:require [clojure.test :refer :all]
-            [uk.me.rkd.ttlcache :refer [per-item-ttl-cache-factory ttl-cache-factory]]
+            [coop.magnet.ttlcache :refer [per-item-ttl-cache-factory ttl-cache-factory]]
             [clojure.data.priority-map :refer [priority-map]])
-  (:import uk.me.rkd.ttlcache.PerItemTTLCache))
+  (:import coop.magnet.ttlcache.PerItemTTLCache))
 
 (defn do-dot-lookup-tests [c]
   (are [expect actual] (= expect actual)

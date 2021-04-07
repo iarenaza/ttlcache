@@ -1,9 +1,9 @@
 ;; Copyright Rob Day, 2014
 ;; Released under the EPL
 
-(ns uk.me.rkd.core-cache-comparison-test
+(ns coop.magnet.core-cache-comparison-test
   (:require [clojure.test :refer :all]
-            [uk.me.rkd.ttlcache :as mycache]
+            [coop.magnet.ttlcache :as mycache]
             [clojure.core.cache :as cache]
             [criterium.core :refer [bench quick-bench quick-benchmark benchmark]]))
 
