@@ -51,9 +51,9 @@
                         (into (priority-map) (for [x base] [(key x) (+ now (get-ttl (key x) (val x)) )]))
                         get-ttl)))
   (evict [_ key]
-    (PerItemTTLCache. (dissoc cache key)
-                      expiry-heap
-                      get-ttl))
+         (PerItemTTLCache. (dissoc cache key)
+                           (dissoc expiry-heap key)
+                           get-ttl))
   Object
   (toString [_]
     (str cache \, \space expiry-heap)))
